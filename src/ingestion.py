@@ -1,40 +1,73 @@
 import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import pymupdf
 import chromadb
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-pdf_path='C:\\Users\\tarun\\rag-agent-project\\data\\usf.pdf'
-source_filename = os.path.basename(pdf_path)
-def extract_text_from_pdf(pdf_path):
-    doc=pymupdf.open(pdf_path)
-    return "\n".join([page.get_text() for page in doc])
 
+# Load the embedding model into memory
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
-splitter=RecursiveCharacterTextSplitter(
-    chunk_size=512,
-    chunk_overlap=50,
-    separators=['\n\n', '\n', ' ', ''])
-
-chunks=splitter.split_text(extract_text_from_pdf(pdf_path))
-
-model=SentenceTransformer('all-MiniLM-L6-v2')
-embeddings=model.encode(chunks, show_progress_bar=True)
-print(f'Embeddings shape: {embeddings.shape}')
-
+# Connect to the persistent ChromaDB
 client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection("rag-docs")
-collection.add(
-    documents=chunks,
-    embeddings=embeddings.tolist(),
-    ids=[f"chunk_{i}" for i in range(len(chunks))],
-    metadatas=[{"source": source_filename, "chunk": i} for i in range(len(chunks))]
+
+# Set up the text splitter
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,
+    chunk_overlap=50,
+    separators=['\n\n', '\n', ' ', '']
 )
 
+def extract_text_from_pdf(pdf_path):
+    """Reads a PDF and returns all text as a single string."""
+    doc = pymupdf.open(pdf_path)
+    return "\n".join([page.get_text() for page in doc])
+
+def ingest_pdf(pdf_path):
+    """
+    Extracts, chunks, embeds, and stores a PDF in ChromaDB.
+    Returns the number of chunks processed.
+    """
+    # Standardize the path and extract the filename for metadata
+    clean_path = pdf_path.replace('\\', '/')
+    source_filename = os.path.basename(clean_path)
+    
+    # Extract and chunk
+    raw_text = extract_text_from_pdf(pdf_path)
+    chunks = splitter.split_text(raw_text)
+    
+    # If the PDF was empty or unreadable, exit early
+    if not chunks:
+        return 0
+        
+    # Generate embeddings (progress bar disabled to keep UI logs clean)
+    embeddings = model.encode(chunks, show_progress_bar=False)
+    
+    # Generate unique IDs for the chunks
+    # We prefix with the filename so chunks from different PDFs don't overwrite each other
+    safe_name = source_filename.replace(" ", "_")
+    ids = [f"{safe_name}_chunk_{i}" for i in range(len(chunks))]
+    metadatas = [{"source": source_filename, "chunk": i} for i in range(len(chunks))]
+    
+    # Add to ChromaDB
+    collection.add(
+        documents=chunks,
+        embeddings=embeddings.tolist(),
+        ids=ids,
+        metadatas=metadatas
+    )
+    
+    return len(chunks)
 
 def retrieve(query, n=3):
+    """
+    Finds the 'n' most relevant document chunks for a given query.
+    """
+
     q_embed = model.encode([query]).tolist()
     results = collection.query(query_embeddings=q_embed, n_results=n)
+    if not results["documents"] or not results["documents"][0]:
+        return []
+        
     return results["documents"][0]
-
-print(retrieve("what are different types of Master’s degrees offered at USF?"))

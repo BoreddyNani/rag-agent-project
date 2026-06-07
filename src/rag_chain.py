@@ -17,7 +17,7 @@ from ingestion import retrieve  # your Day 3 retriever
 
 ai_client = genai.Client(api_key="")
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     google_api_key="")
 
 PROMPT = ChatPromptTemplate.from_template("""
