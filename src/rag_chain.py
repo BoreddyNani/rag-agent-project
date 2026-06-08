@@ -16,10 +16,10 @@ from retrieval import hybrid_retrieve
 
 # Initialize Gemini (gemini-1.5-flash is the equivalent to Haiku for speed/cost)
 
-ai_client = genai.Client(api_key="")
+ai_client = genai.Client(api_key=" ")
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    google_api_key="")
+    google_api_key=" ")
 
 PROMPT = ChatPromptTemplate.from_template("""
 You are a helpful assistant. Answer the question using ONLY
