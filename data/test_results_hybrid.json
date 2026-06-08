@@ -1,0 +1,92 @@
+[
+  {
+    "question": "In what year was the University of South Florida founded?",
+    "answer": "Founded in 1956.",
+    "chunks_used": 5,
+    "latency_ms": 1081
+  },
+  {
+    "question": "What is the total annual economic impact of USF within the state of Florida?",
+    "answer": "With a total annual economic impact of $6.02 billion, USF supports 68,704 jobs in the state.",
+    "chunks_used": 5,
+    "latency_ms": 1132
+  },
+  {
+    "question": "Which organization accredits the University of South Florida to award degrees?",
+    "answer": "The University of South Florida is accredited by the Southern Association of Colleges and Schools Commission on Colleges (SACSCOC).",
+    "chunks_used": 5,
+    "latency_ms": 1257
+  },
+  {
+    "question": "What is the specific street address for the USF Sarasota-Manatee campus?",
+    "answer": "I don't know based on the provided documents.",
+    "chunks_used": 5,
+    "latency_ms": 41957
+  },
+  {
+    "question": "How many total graduate majors and total concentrations are authorized at USF?",
+    "answer": "There are 182 Total Graduate Majors and 245 Total Concentrations authorized at USF.",
+    "chunks_used": 5,
+    "latency_ms": 1640
+  },
+  {
+    "question": "According to the document, what is the acronym used for the Master of Science in Data Intelligence degree?",
+    "answer": "M.S.D.I.",
+    "chunks_used": 5,
+    "latency_ms": 1405
+  },
+  {
+    "question": "Who serves as the USF Provost and Executive Vice President for Academic Affairs?",
+    "answer": "USF Provost & Executive Vice President for Academic Affairs: Prasant Mohapatra, Ph.D.",
+    "chunks_used": 5,
+    "latency_ms": 1246
+  },
+  {
+    "question": "How many members make up the USF Board of Trustees, and how long is their term?",
+    "answer": "The USF Board of Trustees is comprised of thirteen members, and the appointed members serve for a term of five years.",
+    "chunks_used": 5,
+    "latency_ms": 1547
+  },
+  {
+    "question": "Who is listed as the Dean of the Office of Graduate Studies?",
+    "answer": "Ruth Bahr, Ph.D.",
+    "chunks_used": 5,
+    "latency_ms": 1849
+  },
+  {
+    "question": "What is the phone number for the 24/7 Victim Helpline provided by the Center for Victim Advocacy and Violence Prevention?",
+    "answer": "(813) 974-5757",
+    "chunks_used": 5,
+    "latency_ms": 2035
+  },
+  {
+    "question": "Approximately how many veterans, active duty service members, and dependents does the Office of Veteran Success serve?",
+    "answer": "The Office of Veteran Success provides specialized programs and services to over 8,000 veterans, eligible dependents, active duty service members, and members of the Selected Reserve.",
+    "chunks_used": 5,
+    "latency_ms": 7263
+  },
+  {
+    "question": "What are the core operating characteristics/principles of the Ombuds Offices at USF?",
+    "answer": "The Ombuds Offices at USF are confidential, impartial, independent, and informal resources.",
+    "chunks_used": 5,
+    "latency_ms": 3686
+  },
+  {
+    "question": "What does USF Policy 06-026 prohibit on all property owned, leased, or operated by the university?",
+    "answer": "USF Policy 06-026 prohibits smoking, tobacco use, and use of related products on all property owned, leased, or operated by USF.",
+    "chunks_used": 5,
+    "latency_ms": 4378
+  },
+  {
+    "question": "What is the name of the library located on the USF St. Petersburg campus?",
+    "answer": "The University Library for the St. Petersburg campus is home to the Nelson Poynter Memorial Library.",
+    "chunks_used": 5,
+    "latency_ms": 21888
+  },
+  {
+    "question": "Which special library serves the needs of USF Health, including the Colleges of Medicine, Nursing, and Pharmacy?",
+    "answer": "The Shimberg Health Sciences Library serves the needs of USF Health, consisting of the Colleges of Medicine, Nursing, and Pharmacy.",
+    "chunks_used": 5,
+    "latency_ms": 1456
+  }
+]

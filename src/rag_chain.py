@@ -11,7 +11,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
 sys.path.append(str(SCRIPT_DIR))
 
-from ingestion import retrieve  # your Day 3 retriever
+from ingestion import retrieve  
+from retrieval import hybrid_retrieve  
 
 # Initialize Gemini (gemini-1.5-flash is the equivalent to Haiku for speed/cost)
 
@@ -35,7 +36,7 @@ def rag_query(question: str) -> dict:
     start = time.time()
 
     # retrieve top-5 chunks
-    chunks = retrieve(question, n=5)
+    chunks = hybrid_retrieve(question, n=5)
     context = "\n\n".join(chunks)
 
     # call LLM
@@ -58,7 +59,7 @@ with open(DATA_DIR / "eval_questions.json") as f:
 
 results = [rag_query(q["question"]) for q in questions]
 
-with open(DATA_DIR / "test_results.json", "w") as f:
+with open(DATA_DIR / "test_results_hybrid.json", "w") as f:
     json.dump(results, f, indent=2)
 
 # Print latency summary

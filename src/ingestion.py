@@ -59,6 +59,16 @@ def ingest_pdf(pdf_path):
     )
     
     return len(chunks)
+def get_all_chunks():
+    """
+    Retrieves all document chunks from the ChromaDB collection.
+    Returns a list of strings (the document chunks).
+    """
+    results = collection.get()
+    if not results["documents"] :
+        return []
+        
+    return results["documents"]
 
 def retrieve(query, n=3):
     """
