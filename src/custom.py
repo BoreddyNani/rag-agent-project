@@ -1,66 +1,24 @@
-import json
-import sys
-import time
-from pathlib import Path
-
+import os
 from google import genai
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SCRIPT_DIR.parent
-sys.path.append(str(SCRIPT_DIR))
 
-from ingestion import retrieve  # your Day 3 retriever
+os.environ["GEMINI_API_KEY"] = ""  # replace with your Gemini API key
 
-# Initialize Gemini (gemini-1.5-flash is the equivalent to Haiku for speed/cost)
+# Initialize the standard Google GenAI client
+client = genai.Client()
 
-ai_client = genai.Client(api_key="")
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    google_api_key="")
+print("Fetching available models...\n")
 
-PROMPT = ChatPromptTemplate.from_template("""
-You are a helpful assistant. Answer the question using ONLY
-the context below. If the answer is not in the context,
-say "I don't know based on the provided documents."
-
-Context:
-{context}
-
-Question: {question}
-Answer:""")
-
-def rag_query(question: str) -> dict:
-    start = time.time()
-
-    # retrieve top-5 chunks
-    chunks = retrieve(question, n=5)
-    context = "\n\n".join(chunks)
-
-    # call LLM
-    chain = PROMPT | llm
-    answer = chain.invoke({"context": context, "question": question})
-
-    latency_ms = round((time.time() - start) * 1000)
-    return {
-        "question": question,
-        "answer": answer.content,
-        "chunks_used": len(chunks),
-        "latency_ms": latency_ms
-    }
-
-DATA_DIR = ROOT_DIR / "data"
-
-# Run all test queries
-questions = [{"question": "Where is University of south florida located?"}]
-
-results = [rag_query(q["question"]) for q in questions]
-
-with open(DATA_DIR / "test_results.json", "w") as f:
-    json.dump(results, f, indent=2)
-
-# Print latency summary
-latencies = [r["latency_ms"] for r in results]
-print(f"Avg latency: {sum(latencies)//len(latencies)}ms")
-print(f"Max latency: {max(latencies)}ms")
+# Call the list models service
+for model in client.models.list():
+    print(f"Model Name: {model.name}")
+    
+    # Safely try to print the description if it exists
+    if hasattr(model, 'description') and model.description:
+        print(f"Description: {model.description}")
+        
+    # Highlight embedding models so you don't have to squint
+    if "embed" in model.name.lower():
+        print("🟢 THIS IS AN EMBEDDING MODEL!")
+        
+    print("-" * 40)

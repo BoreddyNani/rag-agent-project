@@ -1,47 +1,62 @@
 [
   {
-    "question": "In what year was the University of South Florida founded?"
+    "question": "In what year was the University of South Florida founded?",
+    "ground_truth": "The University of South Florida was founded in 1956."
   },
   {
-    "question": "What is the total annual economic impact of USF within the state of Florida?"
+    "question": "What is the total annual economic impact of USF within the state of Florida?",
+    "ground_truth": "The total annual economic impact of USF is $6.02 billion, and it supports 68,704 jobs in the state."
   },
   {
-    "question": "Which organization accredits the University of South Florida to award degrees?"
+    "question": "Which organization accredits the University of South Florida to award degrees?",
+    "ground_truth": "The University of South Florida is accredited by the Southern Association of Colleges and Schools Commission on Colleges (SACSCOC)."
   },
   {
-    "question": "What is the specific street address for the USF Sarasota-Manatee campus?"
+    "question": "What is the specific street address for the USF Sarasota-Manatee campus?",
+    "ground_truth": "5700 N. Tamiami Trail, Sarasota, FL 34243-2197"
   },
   {
-    "question": "How many total graduate majors and total concentrations are authorized at USF?"
+    "question": "How many total graduate majors and total concentrations are authorized at USF?",
+    "ground_truth": "There are 182 total graduate majors and 245 total concentrations authorized at USF."
   },
   {
-    "question": "According to the document, what is the acronym used for the Master of Science in Data Intelligence degree?"
+    "question": "According to the document, what is the acronym used for the Master of Science in Data Intelligence degree?",
+    "ground_truth": "M.S.D.I."
   },
   {
-    "question": "Who serves as the USF Provost and Executive Vice President for Academic Affairs?"
+    "question": "Who serves as the USF Provost and Executive Vice President for Academic Affairs?",
+    "ground_truth": "Prasant Mohapatra, Ph.D."
   },
   {
-    "question": "How many members make up the USF Board of Trustees, and how long is their term?"
+    "question": "How many members make up the USF Board of Trustees, and how long is their term?",
+    "ground_truth": "The Board of Trustees is comprised of thirteen members, and their term is five years."
   },
   {
-    "question": "Who is listed as the Dean of the Office of Graduate Studies?"
+    "question": "Who is listed as the Dean of the Office of Graduate Studies?",
+    "ground_truth": "Ruth Bahr, Ph.D."
   },
   {
-    "question": "What is the phone number for the 24/7 Victim Helpline provided by the Center for Victim Advocacy and Violence Prevention?"
+    "question": "What is the phone number for the 24/7 Victim Helpline provided by the Center for Victim Advocacy and Violence Prevention?",
+    "ground_truth": "(813) 974-5757"
   },
   {
-    "question": "Approximately how many veterans, active duty service members, and dependents does the Office of Veteran Success serve?"
+    "question": "Approximately how many veterans, active duty service members, and dependents does the Office of Veteran Success serve?",
+    "ground_truth": "The Office of Veteran Success serves over 8,000 veterans, eligible dependents, active duty service members, and members of the Selected Reserve."
   },
   {
-    "question": "What are the core operating characteristics/principles of the Ombuds Offices at USF?"
+    "question": "What are the core operating characteristics/principles of the Ombuds Offices at USF?",
+    "ground_truth": "The core operating characteristics/principles are that they are confidential, impartial, independent, and informal resources."
   },
   {
-    "question": "What does USF Policy 06-026 prohibit on all property owned, leased, or operated by the university?"
+    "question": "What does USF Policy 06-026 prohibit on all property owned, leased, or operated by the university?",
+    "ground_truth": "Smoking, tobacco use, and use of related products is prohibited."
   },
   {
-    "question": "What is the name of the library located on the USF St. Petersburg campus?"
+    "question": "What is the name of the library located on the USF St. Petersburg campus?",
+    "ground_truth": "Nelson Poynter Memorial Library"
   },
   {
-    "question": "Which special library serves the needs of USF Health, including the Colleges of Medicine, Nursing, and Pharmacy?"
+    "question": "Which special library serves the needs of USF Health, including the Colleges of Medicine, Nursing, and Pharmacy?",
+    "ground_truth": "Shimberg Health Sciences Library"
   }
 ]
