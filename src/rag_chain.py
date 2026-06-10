@@ -19,7 +19,8 @@ from retrieval import hybrid_retrieve
 ai_client = genai.Client(api_key="")
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    google_api_key="")
+    google_api_key="",
+    temperature=0.2)
 
 PROMPT = ChatPromptTemplate.from_template("""
 You are a helpful assistant. Answer the question using ONLY

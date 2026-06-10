@@ -1,7 +1,7 @@
 import gradio as gr
 from ingestion import ingest_pdf, retrieve
 from rag_chain import rag_query
-
+from retrieval import hybrid_retrieve
 def upload_pdf(file):
     if file is None:
         return "No file uploaded."
@@ -22,12 +22,12 @@ def chat(message, history):
 
     # Fetch sources (Note: It is more efficient to have rag_query return 
     # the chunks directly so you don't have to call retrieve() twice)
-    sources = retrieve(message, n=2)
+    sources = hybrid_retrieve(message, n=8)
     source_text = "\n\n**Sources used:**\n" + "\n".join(
         f"- {s[:150]}..." for s in sources
     )
     
-    return answer + source_text
+    return answer 
 
 # Build the UI
 with gr.Blocks(title="RAG Document Chat") as demo:

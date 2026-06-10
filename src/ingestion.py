@@ -14,8 +14,8 @@ collection = client.get_or_create_collection("rag-docs")
 
 # Set up the text splitter
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=512,
-    chunk_overlap=50,
+    chunk_size=1500,
+    chunk_overlap=200,
     separators=['\n\n', '\n', ' ', '']
 )
 
