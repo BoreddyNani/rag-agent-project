@@ -1,3 +1,4 @@
+---
 title: RAG Document Chat
 emoji: 📄
 colorFrom: green
