@@ -2,6 +2,7 @@ import gradio as gr
 from ingestion import ingest_pdf, retrieve
 from rag_chain import rag_query
 from retrieval import hybrid_retrieve
+from retrieval import inirialize_bm25_index
 def upload_pdf(file):
     if file is None:
         return "No file uploaded."
