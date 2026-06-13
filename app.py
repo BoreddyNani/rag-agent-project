@@ -1,69 +1,51 @@
 import gradio as gr
-from huggingface_hub import InferenceClient
+from ingestion import ingest_pdf, retrieve
+from rag_chain import rag_query
+from retrieval import hybrid_retrieve
+def upload_pdf(file):
+    if file is None:
+        return "No file uploaded."
+    
+    try:
+        # file.name contains the temporary path where Gradio stored the upload
+        chunk_count = ingest_pdf(file.name)
+        # Handle Windows/Linux path splitting gracefully
+        filename = file.name.replace('\\', '/').split('/')[-1]
+        return f"Success! Ingested {chunk_count} chunks from {filename}"
+    except Exception as e:
+        return f"Error during ingestion: {str(e)}"
 
+def chat(message, history):
+    # Call your RAG chain
+    result = rag_query(message)
+    answer = result["answer"]
 
-def respond(
-    message,
-    history: list[dict[str, str]],
-    system_message,
-    max_tokens,
-    temperature,
-    top_p,
-    hf_token: gr.OAuthToken,
-):
-    """
-    For more information on `huggingface_hub` Inference API support, please check the docs: https://huggingface.co/docs/huggingface_hub/v0.22.2/en/guides/inference
-    """
-    client = InferenceClient(token=hf_token.token, model="openai/gpt-oss-20b")
+    # Fetch sources (Note: It is more efficient to have rag_query return 
+    # the chunks directly so you don't have to call retrieve() twice)
+    sources = hybrid_retrieve(message, n=8)
+    source_text = "\n\n**Sources used:**\n" + "\n".join(
+        f"- {s[:150]}..." for s in sources
+    )
+    
+    return answer 
 
-    messages = [{"role": "system", "content": system_message}]
+# Build the UI
+with gr.Blocks(title="RAG Document Chat") as demo:
+    gr.Markdown("## Chat with your documents")
 
-    messages.extend(history)
+    with gr.Row():
+        upload = gr.File(label="Upload PDF", file_types=[".pdf"])
+        status = gr.Textbox(label="Status", interactive=False)
 
-    messages.append({"role": "user", "content": message})
+    # Cleaned up upload event - it only updates the status box now
+    upload.upload(fn=upload_pdf, inputs=[upload], outputs=[status])
 
-    response = ""
-
-    for message in client.chat_completion(
-        messages,
-        max_tokens=max_tokens,
-        stream=True,
-        temperature=temperature,
-        top_p=top_p,
-    ):
-        choices = message.choices
-        token = ""
-        if len(choices) and choices[0].delta.content:
-            token = choices[0].delta.content
-
-        response += token
-        yield response
-
-
-"""
-For information on how to customize the ChatInterface, peruse the gradio docs: https://www.gradio.app/docs/chatinterface
-"""
-chatbot = gr.ChatInterface(
-    respond,
-    additional_inputs=[
-        gr.Textbox(value="You are a friendly Chatbot.", label="System message"),
-        gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens"),
-        gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature"),
-        gr.Slider(
-            minimum=0.1,
-            maximum=1.0,
-            value=0.95,
-            step=0.05,
-            label="Top-p (nucleus sampling)",
-        ),
-    ],
-)
-
-with gr.Blocks() as demo:
-    with gr.Sidebar():
-        gr.LoginButton()
-    chatbot.render()
-
+    chatbot = gr.ChatInterface(
+        fn=chat,
+        chatbot=gr.Chatbot(height=400),
+        textbox=gr.Textbox(placeholder="Ask a question about your document..."),
+        examples=["Summarize the main points", "What are the key requirements?"]
+    )
 
 if __name__ == "__main__":
     demo.launch()
