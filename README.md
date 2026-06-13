@@ -1,5 +1,5 @@
 ---
-title: Gradio Chatbot
+title: Rag Document Chat
 emoji: 💬
 colorFrom: yellow
 colorTo: purple
