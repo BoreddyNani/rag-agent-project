@@ -45,7 +45,8 @@ with gr.Blocks(title="RAG Document Chat") as demo:
         fn=chat,
         chatbot=gr.Chatbot(height=400),
         textbox=gr.Textbox(placeholder="Ask a question about your document..."),
-        examples=["Summarize the main points", "What are the key requirements?"]
+        examples=["Summarize the main points", "What are the key requirements?"],
+        cache_examples=False
     )
 
 if __name__ == "__main__":
