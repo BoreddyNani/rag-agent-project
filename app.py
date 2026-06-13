@@ -10,6 +10,7 @@ def upload_pdf(file):
         # file.name contains the temporary path where Gradio stored the upload
         chunk_count = ingest_pdf(file.name)
         # Handle Windows/Linux path splitting gracefully
+        initialize_bm25_index()
         filename = file.name.replace('\\', '/').split('/')[-1]
         return f"Success! Ingested {chunk_count} chunks from {filename}"
     except Exception as e:
