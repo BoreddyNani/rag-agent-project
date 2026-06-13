@@ -2,6 +2,7 @@ import gradio as gr
 from ingestion import ingest_pdf, retrieve
 from rag_chain import rag_query
 from retrieval import hybrid_retrieve
+from retrieval import initialize_bm25_index
 def upload_pdf(file):
     if file is None:
         return "No file uploaded."
@@ -10,6 +11,7 @@ def upload_pdf(file):
         # file.name contains the temporary path where Gradio stored the upload
         chunk_count = ingest_pdf(file.name)
         # Handle Windows/Linux path splitting gracefully
+        initialize_bm25_index()
         filename = file.name.replace('\\', '/').split('/')[-1]
         return f"Success! Ingested {chunk_count} chunks from {filename}"
     except Exception as e:
@@ -44,7 +46,8 @@ with gr.Blocks(title="RAG Document Chat") as demo:
         fn=chat,
         chatbot=gr.Chatbot(height=400),
         textbox=gr.Textbox(placeholder="Ask a question about your document..."),
-        examples=["Summarize the main points", "What are the key requirements?"]
+        examples=["Summarize the main points", "What are the key requirements?"],
+        cache_examples=False
     )
 
 if __name__ == "__main__":
