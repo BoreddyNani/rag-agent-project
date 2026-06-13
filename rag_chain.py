@@ -2,6 +2,7 @@ import json
 import sys
 import time
 from pathlib import Path
+import os
 
 from google import genai
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -15,11 +16,10 @@ from ingestion import retrieve
 from retrieval import hybrid_retrieve  
 
 # Initialize Gemini (gemini-1.5-flash is the equivalent to Haiku for speed/cost)
-
-ai_client = genai.Client(api_key="GEMINI_API_KEY")
+api_key_from_env = os.environ.get("GEMINI_API_KEY")
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    google_api_key="GEMINI_API_KEY",
+    google_api_key=api_key_from_env,
     temperature=0.2)
 
 PROMPT = ChatPromptTemplate.from_template("""
