@@ -16,10 +16,10 @@ from retrieval import hybrid_retrieve
 
 # Initialize Gemini (gemini-1.5-flash is the equivalent to Haiku for speed/cost)
 
-ai_client = genai.Client(api_key="GEMINI-API-KEY")
+ai_client = genai.Client(api_key="GEMINI_API_KEY")
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    google_api_key="GEMINI-API-KEY",
+    google_api_key="GEMINI_API_KEY",
     temperature=0.2)
 
 PROMPT = ChatPromptTemplate.from_template("""
