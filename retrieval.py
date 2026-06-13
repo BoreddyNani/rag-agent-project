@@ -18,14 +18,14 @@ def initialize_bm25_index():
     
     # DEFENSIVE GUARD: Avoid ZeroDivisionError if chunks are missing or empty
     if not chunks_cache:
-        print("⚠️ Warning: Attempted to initialize BM25 with an empty corpus.")
+        print("Warning: Attempted to initialize BM25 with an empty corpus.")
         bm25 = None
         return
         
     # Build tokenized corpus safely
     tokenized = [c.lower().split() for c in chunks_cache]
     bm25 = BM25Okapi(tokenized)
-    print(f"✅ BM25 Index successfully built with {len(chunks_cache)} chunks!")
+    print(f"BM25 Index successfully built with {len(chunks_cache)} chunks!")
 
 def bm25_retrieve(query: str, n: int = 20) -> list[str]:
     global bm25, chunks_cache
