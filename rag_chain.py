@@ -52,18 +52,3 @@ def rag_query(question: str) -> dict:
         "latency_ms": latency_ms
     }
 
-DATA_DIR = ROOT_DIR / "data"
-
-# Run all test queries
-with open(DATA_DIR / "eval_questions.json") as f:
-    questions = json.load(f)
-
-results = [rag_query(q["question"]) for q in questions]
-
-with open(DATA_DIR / "test_results_hybrid.json", "w") as f:
-    json.dump(results, f, indent=2)
-
-# Print latency summary
-latencies = [r["latency_ms"] for r in results]
-print(f"Avg latency: {sum(latencies)//len(latencies)}ms")
-print(f"Max latency: {max(latencies)}ms")
