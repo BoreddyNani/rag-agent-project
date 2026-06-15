@@ -3,6 +3,7 @@ from ingestion import ingest_pdf, retrieve
 from rag_chain import rag_query
 from retrieval import hybrid_retrieve
 from retrieval import initialize_bm25_index
+from agent import agent
 def upload_pdf(file):
     if file is None:
         return "No file uploaded."
@@ -19,15 +20,22 @@ def upload_pdf(file):
 
 def chat(message, history):
     # Call your RAG chain
-    result = rag_query(message)
+    inputs = {
+            "query": message,
+            "query_type": "",
+            "retrieved_chunks": [],
+            "answer": "",
+            "steps": []
+        }
+    result = agent.invoke(inputs)
     answer = result["answer"]
 
     # Fetch sources (Note: It is more efficient to have rag_query return 
     # the chunks directly so you don't have to call retrieve() twice)
-    sources = hybrid_retrieve(message, n=8)
-    source_text = "\n\n**Sources used:**\n" + "\n".join(
-        f"- {s[:150]}..." for s in sources
-    )
+    #sources = hybrid_retrieve(message, n=8)
+    #source_text = "\n\n**Sources used:**\n" + "\n".join(
+    #    f"- {s[:150]}..." for s in sources
+    #)
     
     return answer 
 

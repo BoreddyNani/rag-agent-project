@@ -6,6 +6,7 @@ from datasets import Dataset
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+from dotenv import load_dotenv
 from ragas import evaluate
 # FIX: Updated import path for Ragas metrics to stop deprecation warnings
 from ragas.metrics import faithfulness, context_recall, answer_relevancy
@@ -16,19 +17,23 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
-os.environ["GEMINI_API_KEY"] = ""  # replace with your Gemini API key
+load_dotenv(SCRIPT_DIR / ".env")
+
+api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+if not api_key:
+    raise RuntimeError("Missing Gemini API key. Add GEMINI_API_KEY to src/.env")
 
 # 1. Point RAGAS at Gemini as the judge LLM
 gemini = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash", # or gemini-1.5-flash
-    google_api_key=os.environ["GEMINI_API_KEY"]
+    google_api_key=api_key
 )
 ragas_llm = LangchainLLMWrapper(gemini)
 
 # 2. Initialize and wrap Google's embedding model
 gemini_embeddings = GoogleGenerativeAIEmbeddings(
     model="models/gemini-embedding-2",
-    google_api_key=os.environ["GEMINI_API_KEY"]
+    google_api_key=api_key
 )
 ragas_embeddings = LangchainEmbeddingsWrapper(gemini_embeddings)
 

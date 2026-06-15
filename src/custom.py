@@ -1,11 +1,15 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from google import genai
 
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
-os.environ["GEMINI_API_KEY"] = ""  # replace with your Gemini API key
+api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+if not api_key:
+    raise RuntimeError("Missing Gemini API key. Add GEMINI_API_KEY to src/.env")
 
-# Initialize the standard Google GenAI client
-client = genai.Client()
+client = genai.Client(api_key=api_key)
 
 print("Fetching available models...\n")
 
