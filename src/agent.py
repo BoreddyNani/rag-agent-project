@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
 from langchain_google_genai import ChatGoogleGenerativeAI
 from retrieval import hybrid_retrieve
+from youdotcom import You
+from langchain_youdotcom import YouSearchTool
+
+
 import re, os
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
@@ -15,6 +19,8 @@ if not api_key:
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash",
                              google_api_key=api_key,
                              temperature=0)
+you_key=os.environ.get("YOU_KEY")
+you=You(api_key_auth=you_key)
 
 class AgentState(TypedDict):
     query: str
@@ -50,8 +56,29 @@ Question: {state['query']}"""
 
 # ── Node 2b: web search stub ─────────────────────────────────────
 def web_search_and_answer(state: AgentState) -> AgentState:
-    return {**state, "answer": f"[Web search coming Day 15] Query: {state['query']}",
-            "steps": state["steps"] + ["Routed to web search (stub)"]}
+    query=state["query"]
+    try:
+        with You(api_key_auth=you_key) as you_c:
+
+            response=you_c.search.unified(query=query,count=5)
+            snippets=[]
+            if response.results and response.results.web:
+                for web_result in response.results.web:
+                # Individual results store text in a list called snippets
+                    if web_result.snippets:
+                        snippets.extend(web_result.snippets)
+                    
+        # Join extracted snippets together
+            context = "\n\n".join(snippets) if snippets else "No live snippets found."
+            prompt=f""" using the following web search results, answer the question. Search results:{context} Question:{state['query']} Answer:"""
+            answer= llm.invoke(prompt).content
+    except Exception as e:
+        answer= f"{str(e)}"
+
+    return {
+        **state,
+        "answer": answer
+    }
 
 # ── Node 2c: calculate ────────────────────────────────────────────
 def calculate(state: AgentState) -> AgentState:
