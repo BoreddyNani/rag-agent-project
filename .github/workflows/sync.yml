@@ -25,15 +25,16 @@ jobs:
           git clone https://boreddytarun:$HF_TOKEN@huggingface.co/spaces/boreddytarun/rag-document-chat hf_space_dir
           
           # 3. Create target internal paths inside the Hugging Face directory if they don't exist yet
+          mkdir -p hf_space_dir/src
           
           
           # 4. Explicitly copy ONLY the specific files required for production execution
           
-          cp src/app.py hf_space_dir/
-          cp src/agent.py hf_space_dir/
-          cp src/retrieval.py hf_space_dir/
-          cp src/ingestion.py hf_space_dir/
-          cp src/rag_chain.py hf_space_dir/
+          cp src/app.py hf_space_dir/src/
+          cp src/agent.py hf_space_dir/src/
+          cp src/retrieval.py hf_space_dir/src/
+          cp src/ingestion.py hf_space_dir/src/
+          cp src/rag_chain.py hf_space_dir/src/
           
           # 5. Switch tracking into the staging workspace subfolder
           cd hf_space_dir
