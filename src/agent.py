@@ -28,10 +28,18 @@ class AgentState(TypedDict):
     retrieved_chunks: List[str]
     answer: str
     steps: List[str]
+    chat_history: List[dict]
 
 # ── Node 1: classify ────────────────────────────────────────────
 def classify_query(state: AgentState) -> AgentState:
-    prompt = f"""Classify this query into exactly one of: factual, web, calculation.
+    history_ctx = ""
+    if state["chat_history"]:
+        recent = state["chat_history"][-4:]
+        history_ctx = "Previous conversation:\n" + "\n".join(
+            f"{m['role'].title()}: {m['content']}" for m in recent
+        ) + "\n\n"
+
+    prompt = f"""{history_ctx}Classify this query into exactly one of: factual, web, calculation.
 - factual: can be answered from a document
 - web: requires current/live information
 - calculation: requires arithmetic or math
@@ -47,6 +55,12 @@ Return ONLY one word: factual, web, or calculation."""
 def retrieve_and_answer(state: AgentState) -> AgentState:
     chunks = hybrid_retrieve(state["query"], n=5)
     context = "\n\n".join(chunks)
+    history_ctx = ""
+    if state["chat_history"]:
+        recent = state["chat_history"][-4:]
+        history_ctx = "Conversation so far:\n" + "\n".join(
+            f"{m['role'].title()}: {m['content']}" for m in recent
+        ) + "\n\n"
     prompt = f"""Answer using ONLY this context. If not found, say so.
 Context: {context}
 Question: {state['query']}"""
@@ -99,6 +113,18 @@ def calculate(state: AgentState) -> AgentState:
 
     return {**state, "answer": answer,
             "steps": current_steps + [f"Calculated: {state['query']}"]}
+def summarise_if_long(state: AgentState) -> AgentState:
+    if len(state["chat_history"]) <= 8:
+        return state                    # not needed yet
+    history_text = "\n".join(
+        f"{m['role'].title()}: {m['content']}" for m in state["chat_history"]
+    )
+    summary = llm.invoke(
+        f"Summarise this conversation in 3 sentences:\n{history_text}"
+    ).content
+    compressed = [{"role": "system", "content": f"Conversation summary: {summary}"}]
+    return {**state, "chat_history": compressed,
+            "steps": state["steps"] + ["Compressed history to summary"]}
 
 # ── Route function ────────────────────────────────────────────────
 def route(state: AgentState) -> str:
@@ -110,6 +136,7 @@ graph.add_node("classify_query",        classify_query)
 graph.add_node("retrieve_and_answer",   retrieve_and_answer)
 graph.add_node("web_search_and_answer", web_search_and_answer)
 graph.add_node("calculate",             calculate)
+graph.add_node("summarise_if_long", summarise_if_long)
 
 graph.add_edge(START, "classify_query")
 graph.add_conditional_edges("classify_query", route, {
@@ -117,8 +144,9 @@ graph.add_conditional_edges("classify_query", route, {
     "web":         "web_search_and_answer",
     "calculation": "calculate"
 })
+
 graph.add_edge("retrieve_and_answer",   END)
 graph.add_edge("web_search_and_answer", END)
 graph.add_edge("calculate",             END)
-
+graph.add_edge("summarise_if_long", END)
 agent = graph.compile()

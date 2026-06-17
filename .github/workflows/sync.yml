@@ -1,0 +1,50 @@
+name: Sync Selected Files to Hugging Face Hub
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialize and Selectively Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # 1. Configure isolated Git user identities for the virtual runner
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          
+          # 2. Clone ONLY the target Hugging Face space repository architecture into an ephemeral subfolder
+          git clone https://boreddytarun:$HF_TOKEN@huggingface.co/spaces/boreddytarun/rag-document-chat hf_space_dir
+          
+          # 3. Create target internal paths inside the Hugging Face directory if they don't exist yet
+          
+          
+          # 4. Explicitly copy ONLY the specific files required for production execution
+          
+          cp src/app.py hf_space_dir/
+          cp src/agent.py hf_space_dir/
+          cp src/retrieval.py hf_space_dir/
+          cp src/ingestion.py hf_space_dir/
+          cp src/rag_chain.py hf_space_dir/
+          
+          # 5. Switch tracking into the staging workspace subfolder
+          cd hf_space_dir
+          
+          # 6. Stage only these specific additions, tracking structural file differences natively
+          git add README.md requirements.txt src/app.py src/agent.py src/retrieval.py
+          
+          # 7. Commit changes if differences exist, preventing build breaks on empty updates
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Automated file-isolated update from GitHub Action workflow"
+            git push origin main
+          else
+            echo "No updates detected in the selected core files. Skipping push layer."
+          fi

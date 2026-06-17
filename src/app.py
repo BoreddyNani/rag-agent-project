@@ -20,22 +20,20 @@ def upload_pdf(file):
 
 def chat(message, history):
     # Call your RAG chain
+    chat_hist = []
+    for item in history:
+        chat_hist.append(item)
     inputs = {
             "query": message,
             "query_type": "",
             "retrieved_chunks": [],
             "answer": "",
-            "steps": []
+            "steps": [],
+            "chat_history": chat_hist
         }
     result = agent.invoke(inputs)
     answer = result["answer"]
 
-    # Fetch sources (Note: It is more efficient to have rag_query return 
-    # the chunks directly so you don't have to call retrieve() twice)
-    #sources = hybrid_retrieve(message, n=8)
-    #source_text = "\n\n**Sources used:**\n" + "\n".join(
-    #    f"- {s[:150]}..." for s in sources
-    #)
     
     return answer 
 
