@@ -40,7 +40,7 @@ jobs:
           cd hf_space_dir
           
           # 6. Stage only these specific additions, tracking structural file differences natively
-          git add README.md requirements.txt src/app.py src/agent.py src/retrieval.py
+          git add README.md requirements.txt src/app.py src/agent.py src/retrieval.py src/ingestion.py src/rag_chain.py
           
           # 7. Commit changes if differences exist, preventing build breaks on empty updates
           if ! git diff-index --quiet HEAD --; then
