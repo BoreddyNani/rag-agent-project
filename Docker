@@ -1,0 +1,49 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies first (layer caching — deps change less than code)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
+COPY src/ ./src/
+COPY main.py .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ── docker-compose.yml ───────────────────────────────────────────
+# version: "3.9"    # optional in modern Docker Compose
+
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"        # expose on 8001 locally to avoid port conflict
+    volumes:
+      - chroma_data:/chroma/chroma     # persist data across restarts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rag-backend:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env                # loads GEMINI_API_KEY, TAVILY_API_KEY etc.
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    depends_on:
+      chromadb:
+        condition: service_healthy    # wait for ChromaDB health check
+    volumes:
+      - ./src:/app/src    # hot reload in dev — remove for production
+
+volumes:
+  chroma_data:
