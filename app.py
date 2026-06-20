@@ -19,10 +19,8 @@ def upload_pdf(file):
         return f"Error during ingestion: {str(e)}"
 
 def chat(message, history):
-    # Call your RAG chain
-    chat_hist = []
-    for item in history:
-        chat_hist.append(item)
+    # Convert Gradio chat history to list of dicts for agent
+    chat_hist = [item for item in history]
     inputs = {
             "query": message,
             "query_type": "",
@@ -33,28 +31,56 @@ def chat(message, history):
         }
     result = agent.invoke(inputs)
     answer = result["answer"]
-
+    chunks_list = result.get("retrieved_chunks", [])
+    steps_list = result.get("steps", [])
     
-    return answer 
+    # Format sources
+    sources_md = ""
+    if chunks_list:
+        sources_md = "\n\n---\n\n".join(f"📄 **Chunk [{i+1}]:**\n{chunk[:500]}..." for i, chunk in enumerate(chunks_list[:5]))
+    else:
+        sources_md = "*No chunks retrieved.*"
+    
+    # Format steps
+    steps_md = ""
+    if steps_list:
+        steps_md = "\n".join(f"🔄 {step}" for step in steps_list)
+    else:
+        steps_md = "*No steps recorded.*"
+    
+    return answer, sources_md, steps_md
 
 # Build the UI
 with gr.Blocks(title="RAG Document Chat") as demo:
     gr.Markdown("## Chat with your documents")
 
     with gr.Row():
-        upload = gr.File(label="Upload PDF", file_types=[".pdf"])
-        status = gr.Textbox(label="Status", interactive=False)
+        with gr.Column(scale=4):
+            with gr.Row():
+                upload = gr.File(label="Upload PDF", file_types=[".pdf"])
+                status = gr.Textbox(label="Status", interactive=False)
 
-    # Cleaned up upload event - it only updates the status box now
-    upload.upload(fn=upload_pdf, inputs=[upload], outputs=[status])
+            upload.upload(fn=upload_pdf, inputs=[upload], outputs=[status])
 
-    chatbot = gr.ChatInterface(
-        fn=chat,
-        chatbot=gr.Chatbot(height=400),
-        textbox=gr.Textbox(placeholder="Ask a question about your document..."),
-        examples=["Summarize the main points", "What are the key requirements?"],
-        cache_examples=False
-    )
+            chatbot = gr.Chatbot(height=400)
+            msg = gr.Textbox(placeholder="Ask a question about your document...", show_label=False)
+            
+        with gr.Column(scale=3):
+            gr.Markdown("### 🛠️ Agent Internals Tracker")
+            
+            with gr.Accordion("🔍 Agent Decision Process / Steps", open=True):
+                reasoning_panel = gr.Markdown("*Awaiting user query...*")
+                
+            with gr.Accordion("📚 Retrieved Grounding Context Sources", open=True):
+                sources_panel = gr.Markdown("*No context loaded yet.*")
+    
+    def respond(message, history):
+        answer, sources, steps = chat(message, history)
+        history.append({"role": "user", "content": message})
+        history.append({"role": "assistant", "content": answer})
+        return history, sources, steps, ""
+    
+    msg.submit(respond, [msg, chatbot], [chatbot, sources_panel, reasoning_panel, msg])
 
 if __name__ == "__main__":
     demo.launch()

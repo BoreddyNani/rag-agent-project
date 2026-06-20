@@ -3,14 +3,17 @@ from typing import TypedDict, List
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
 from langchain_google_genai import ChatGoogleGenerativeAI
-from retrieval import hybrid_retrieve
+from src.retrieval import hybrid_retrieve
 from youdotcom import You
 from langchain_youdotcom import YouSearchTool
 
 
 import re, os
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
+
+load_dotenv(ROOT_DIR/ ".env")
 
 api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 if not api_key:
@@ -70,7 +73,11 @@ Question: {state['query']}"""
 
 # ── Node 2b: web search stub ─────────────────────────────────────
 def web_search_and_answer(state: AgentState) -> AgentState:
+    current_steps = state.get("steps", [])
     query=state["query"]
+    snippets = []
+    step_log = "Web search initialized"
+
     try:
         with You(api_key_auth=you_key) as you_c:
 
@@ -86,12 +93,15 @@ def web_search_and_answer(state: AgentState) -> AgentState:
             context = "\n\n".join(snippets) if snippets else "No live snippets found."
             prompt=f""" using the following web search results, answer the question. Search results:{context} Question:{state['query']} Answer:"""
             answer= llm.invoke(prompt).content
+            step_log = f"Successfully queried You.com and extracted {len(snippets)} snippets"
     except Exception as e:
         answer= f"{str(e)}"
 
     return {
         **state,
-        "answer": answer
+        "answer": answer,
+        "retrieved_chunks": snippets[:5],
+        "steps": current_steps + [step_log]
     }
 
 # ── Node 2c: calculate ────────────────────────────────────────────
@@ -145,8 +155,8 @@ graph.add_conditional_edges("classify_query", route, {
     "calculation": "calculate"
 })
 
-graph.add_edge("retrieve_and_answer",   END)
-graph.add_edge("web_search_and_answer", END)
-graph.add_edge("calculate",             END)
-graph.add_edge("summarise_if_long", END)
+graph.add_edge("retrieve_and_answer",   "summarise_if_long")
+graph.add_edge("web_search_and_answer", "summarise_if_long")
+graph.add_edge("calculate",             "summarise_if_long")
+graph.add_edge("summarise_if_long",     END)
 agent = graph.compile()

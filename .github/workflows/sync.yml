@@ -30,7 +30,7 @@ jobs:
           
           # 4. Explicitly copy ONLY the specific files required for production execution
           
-          cp src/app.py hf_space_dir/src/
+          cp app.py hf_space_dir/src/
           cp src/agent.py hf_space_dir/src/
           cp src/retrieval.py hf_space_dir/src/
           cp src/ingestion.py hf_space_dir/src/
@@ -40,7 +40,7 @@ jobs:
           cd hf_space_dir
           
           # 6. Stage only these specific additions, tracking structural file differences natively
-          git add README.md requirements.txt src/app.py src/agent.py src/retrieval.py src/ingestion.py src/rag_chain.py
+          git add README.md requirements.txt app.py src/agent.py src/retrieval.py src/ingestion.py src/rag_chain.py
           
           # 7. Commit changes if differences exist, preventing build breaks on empty updates
           if ! git diff-index --quiet HEAD --; then
