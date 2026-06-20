@@ -12,7 +12,7 @@ from langchain_core.prompts import ChatPromptTemplate
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
 sys.path.append(str(SCRIPT_DIR))
-load_dotenv(SCRIPT_DIR / ".env")
+load_dotenv(ROOT_DIR/ ".env")
 
 from ingestion import retrieve  
 from retrieval import hybrid_retrieve  
