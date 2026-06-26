@@ -9,7 +9,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Connect to the persistent ChromaDB
-client = chromadb.Client()
+# Update this in your python ingestion/retrieval setup if you haven't yet!
+client = chromadb.HttpClient(host="chromadb", port=8000)
 collection = client.get_or_create_collection("rag-docs")
 
 # Set up the text splitter
